@@ -1,0 +1,8 @@
+{
+  "name": "purple-team-toolkit",
+  "version": "0.1.0",
+  "description": "Claude Code workflow for purple-team engagements: scoping, ATT&CK-to-Atomic-Red-Team mapping, runbook generation, execution logging, and after-action reporting.",
+  "author": {
+    "name": "Pirate-Kitty"
+  }
+}

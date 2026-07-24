@@ -1,0 +1,13 @@
+# External data sources for the purple-team workflow.
+# Neither path below is stored inside this repo's git history — both point
+# outside it. Fill these in once confirmed; do not commit real internal
+# hostnames here if this repo is ever shared beyond its intended audience.
+
+# Local clone of https://github.com/redcanaryco/atomic-red-team
+# Read-only source for the atomic-red-team-mapper agent.
+atomic_red_team_path: null  # e.g. /path/to/atomic-red-team
+
+# External root for raw exercise evidence (logs, screenshots, pcaps).
+# Never stored inside this repo. Exercise metadata.yaml files reference
+# subpaths under this root.
+evidence_root: null  # e.g. /path/to/purple-team-evidence

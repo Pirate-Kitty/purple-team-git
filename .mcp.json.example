@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "hayabusa-mcp": {
+      "command": "/path/to/mcp-hayabusa/.venv/bin/python",
+      "args": [
+        "/path/to/mcp-hayabusa/server.py"
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+# External data sources for the purple-team workflow.
+# Copy this to config/data-sources.yaml in your installation and fill in
+# both paths for your environment. Neither path should point inside a git
+# repository that gets shared/published — keep both external and, if either
+# contains anything sensitive, gitignored.
+
+# Local clone of https://github.com/redcanaryco/atomic-red-team
+# Read-only source for the atomic-red-team-mapper agent.
+atomic_red_team_path: null  # e.g. /path/to/atomic-red-team
+
+# External root for raw exercise evidence (logs, screenshots, pcaps).
+# Never stored inside this repo. Exercise metadata.yaml files reference
+# subpaths under this root.
+evidence_root: null  # e.g. /path/to/purple-team-evidence
