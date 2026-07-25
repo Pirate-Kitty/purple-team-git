@@ -16,3 +16,9 @@ atomic_red_team_path: null  # e.g. /path/to/atomic-red-team
 # Never stored inside this repo. Exercise metadata.yaml files reference
 # subpaths under this root.
 evidence_root: null  # e.g. /path/to/purple-team-evidence
+
+# Local clone of the sibling complex-analysis threat-intel/correlation CLI
+# project. Path-only reference — no code from that project is vendored or
+# copied here. Not currently read by any purple-team command; documented
+# for manual cross-tool workflows (see HANDOFF.md).
+complex_analysis_path: null  # e.g. /path/to/complex-analysis

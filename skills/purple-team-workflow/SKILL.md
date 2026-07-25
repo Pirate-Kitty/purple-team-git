@@ -1,6 +1,6 @@
 ---
 name: purple-team-workflow
-description: Use this skill when scoping, mapping, running, or reporting on a purple-team exercise with the purple-team-toolkit plugin's commands (/purple-scope, /purple-map-techniques, /purple-runbook, /purple-log, /purple-report) and the atomic-red-team-mapper agent. Also use it when setting up a new installation of this plugin to scaffold exercise folders or configure external data sources.
+description: Use this skill when scoping, mapping, running, reporting, or validating detections for a purple-team exercise with the purple-team-toolkit plugin's commands (/purple-scope, /purple-map-techniques, /purple-runbook, /purple-log, /purple-report, /query) and the atomic-red-team-mapper agent. Also use it when setting up a new installation of this plugin to scaffold exercise folders or configure external data sources.
 version: 0.1.0
 ---
 
@@ -22,6 +22,9 @@ report. See the plugin's `commands/` for the step-by-step workflow and
   required before any command is run.
 - Real evidence (logs, screenshots, pcaps) and real exercise data are never
   bundled with this plugin — they live outside the plugin, per-installation.
+- `/query` never connects to a live SIEM and never fabricates results — it
+  only translates questions into query syntax and analyzes what a human
+  actually pastes back.
 
 ## Setting up a new installation
 

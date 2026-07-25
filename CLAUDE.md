@@ -16,6 +16,10 @@ after-action reporting.
 - **Never fabricate offensive content.** The mapper must never invent a test
   ID, GUID, or command. If no match exists in the referenced Atomic Red Team
   data, it says so.
+- **No live SIEM connection.** `/query` translates a detection question into
+  SIEM query syntax for manual execution and analyzes only human-provided
+  results — it never connects to a live SIEM, and never fabricates or
+  estimates results that weren't actually given to it.
 - **No real evidence in this repo.** Raw logs, screenshots, and pcaps live on
   an external path outside this repository (see `config/data-sources.yaml`).
   Exercise folders reference that path; they never contain the data itself.
@@ -43,7 +47,7 @@ from either path.
   (machine-specific, gitignored, not part of the portable plugin); the
   tracked template is `.mcp.json.example`
 - `exercises/<id>/` — one folder per engagement (scope, technique-map,
-  runbook, execution-log, detections)
+  runbook, execution-log, detections, detection-validations)
 - `reporting/` — report templates and generated after-action reports
 - `config/data-sources.yaml` — tracked template for this installation's
   external paths (ART data clone, evidence root); ships with `null`

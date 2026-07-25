@@ -11,6 +11,13 @@ marketplace, is not installed from a Git remote, and is not intended to be
 installed by anyone outside this local checkout yet. Treat everything here
 as a working project, not a released package.
 
+**No live Atomic Red Team technique execution or real-target exercise has
+been performed using this project.** Everything validated so far — the
+Hayabusa MCP integration, the Atomic Red Team lookup, the command chain —
+has been exercised against sample and synthetic data only. See
+`HANDOFF.md`'s Validation Record for exactly what has and hasn't been
+exercised.
+
 ## Authorization / dual-use notice
 
 This toolkit helps plan and document purple-team exercises. It maps
@@ -25,8 +32,9 @@ or accounts you are not explicitly authorized to test.
 ## Components
 
 - `commands/` — `/purple-scope`, `/purple-map-techniques`, `/purple-runbook`,
-  `/purple-log`, `/purple-report` (symlinked to `.claude/commands/`, the
-  tested source of truth)
+  `/purple-log`, `/purple-report`, `/query` (symlinked to `.claude/commands/`,
+  the tested source of truth; `/query` intentionally breaks the `purple-`
+  naming convention)
 - `agents/atomic-red-team-mapper.md` — planning-only technique-to-test
   mapping subagent, no execution capability (symlinked to `.claude/agents/`)
 - `skills/purple-team-workflow/` — workflow overview and generic starter
@@ -48,8 +56,8 @@ or accounts you are not explicitly authorized to test.
    installation, pointing at a local Hayabusa MCP server clone. `.mcp.json`
    is gitignored — it's local, machine-specific config, never committed.
 3. Sample-data validation of this configuration is complete — see
-   `TESTING.md`'s 2026-07-25 entry for exactly what was and wasn't
-   exercised. **This is not a real exercise.**
+   `TESTING.md` for exactly what was and wasn't exercised. **This is not a
+   real exercise.**
 4. Run `/purple-scope` to start a real exercise. It requires its own
    explicit scope, sign-off, approved targets/techniques, a time window,
    and a cleanup plan before any mapping, runbook, or logging step

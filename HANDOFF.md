@@ -4,6 +4,86 @@ Status as of 2026-07-25. Read this first if you're picking this project up
 — it points at the detailed docs rather than repeating them, and is meant
 to be self-contained (no dependency on chat history).
 
+## Executive Summary
+
+This is a Claude Code plugin that runs a purple-team engagement from
+scoping through after-action reporting — objective and technique intake,
+ATT&CK-to-Atomic-Red-Team mapping, human-executed runbooks, append-only
+execution logging, and report assembly — with a fail-closed redaction gate
+in front of every git write. It is functionally complete and has been
+validated end-to-end against sample and synthetic data only, including
+live calls through the actual Hayabusa MCP protocol and a live,
+harness-enforced invocation of the technique-mapping subagent. **No live
+Atomic Red Team technique execution and no real-target exercise has been
+performed under this project.** Running one is separate, future,
+authorization-gated work — see Next steps.
+
+## Technical Summary
+
+Five slash commands (`/purple-scope` → `/purple-map-techniques` →
+`/purple-runbook` → `/purple-log` → `/purple-report`) drive the workflow,
+backed by a planning-only `atomic-red-team-mapper` subagent restricted to
+`Read`/`Glob`/`Grep` (no Bash/Write/Edit — it cannot execute anything). A
+`PreToolUse` hook (`.claude/hooks/redaction-check.sh`) gates every
+`git add`/`commit`/`push` repo-wide and fails closed. External dependencies
+(an Atomic Red Team clone, a Hayabusa MCP server, and a raw evidence root)
+are all per-installation and never vendored or committed — see External
+dependencies below. All of it, including the MCP tool itself and the
+mapper subagent as a real harness-enforced process, has now been exercised
+live, not just statically. Full detail: What's done, Decisions, External
+dependencies.
+
+## Coverage & Gap Findings
+
+- **Real finding, still open**: the 2026-07-25 sample-data validation
+  derived two candidate ATT&CK techniques from a correlated finding and
+  looked both up against the real Atomic Red Team clone. One technique had
+  no test specific to the cloud provider involved — only tests for other
+  providers exist in the local data. This is a genuine local data-coverage
+  gap, not a tooling bug; closing it means sourcing or writing a test for
+  that provider, or documenting it as an accepted gap in a real exercise's
+  report.
+- **Redaction hook coverage is intentionally narrow, not exhaustive**: it
+  matches five pattern categories (PEM private-key headers, AWS access-key
+  IDs, `password=`/`api_key=`/`secret=`-style assignments, RFC1918 IPs). Per
+  `REDACTION.md`, it is a backstop, not the primary control — the primary
+  control is that real secrets/evidence never enter the repo to begin with.
+  It will not catch other credential formats (other cloud providers' key
+  formats, JWTs, generic tokens) or PII beyond what those five patterns
+  happen to match.
+- **Minor pre-existing terminology mismatch, not fixed**: `purple-log.md`
+  and `/query` both write `detected/missed/partial` to `detections.md`, while
+  `reporting/templates/after-action-report.md`'s Detection Coverage table
+  uses `Yes/No/Partial` wording. Same three-state meaning, cosmetic only —
+  left unreconciled since fixing it means editing the report template,
+  which is out of scope for the `/query` addition.
+
+## Validation Record
+
+Full method/results/limitations live in `TESTING.md`; this is an index:
+
+- **2026-07-24** — full command chain walked end-to-end with a synthetic
+  exercise (deleted after, consolidated here); gate ordering, mapper
+  match/exclusion/no-fabrication behavior, runbook generation, append-only
+  logging, report assembly, and redaction-hook regression all verified.
+- **2026-07-25, sample-data pipeline validation** — config unblock
+  confirmed; Hayabusa binary run directly against a sample EVTX (real
+  detection); a full offline `complex-analysis` walkthrough against sample
+  fixtures producing one correlated finding plus a confirmed negative
+  control; a mapper lookup against the real Atomic Red Team clone
+  (surfacing the coverage gap above).
+- **2026-07-25, live-invocation validation** —
+  `mcp__hayabusa-mcp__scan_evtx` called live through the actual MCP
+  protocol (same result as the direct binary run); `atomic-red-team-mapper`
+  invoked as a real, harness-enforced subagent against the real ART clone,
+  with its tool restriction holding under actual enforcement.
+- **2026-07-25, `/query` validation** — command discovery, scoped-exercise
+  enforcement, per-invocation SIEM selection, query generation,
+  pause-for-results behavior, ATT&CK mapping, and append-only documentation
+  output all verified against synthetic fixtures, by manual walkthrough and
+  by live `Skill` invocation. Tested in manual mode only, using
+  sanitized/synthetic data — not against a live SIEM.
+
 ## Current status
 
 Local-only Claude Code plugin, tracked in git with a real GitHub remote
@@ -14,10 +94,14 @@ stays `null`-only, so per-installation paths never enter git history — see
 Decisions and Gotchas. A sample-data pipeline validation pass is complete:
 the config-resolution guardrail, the Hayabusa binary, an Atomic Red Team
 lookup, and a cross-tool walkthrough with `complex-analysis` have all been
-exercised successfully against sample/synthetic data only — **not a real
-exercise** — see `TESTING.md`'s 2026-07-25 entry for full method, results,
-and limitations. Running an actual authorized exercise is separate,
-future work (see Next steps).
+exercised successfully against sample/synthetic data only. The two
+remaining live-invocation gaps from that pass have since been closed: the
+Hayabusa MCP tool has been called live through its actual protocol, and
+the `atomic-red-team-mapper` subagent has been invoked as a real,
+harness-enforced process. **None of this constitutes a real exercise** —
+see `TESTING.md`'s 2026-07-25 entries for full method, results, and
+limitations. Running an actual authorized exercise is separate, future
+work (see Next steps).
 
 ## What's done
 
@@ -25,6 +109,18 @@ future work (see Next steps).
   `/purple-runbook`, `/purple-log`, `/purple-report`) and the
   `atomic-red-team-mapper` subagent (planning-only, `tools: Read, Glob,
   Grep` only — no Bash/Write/Edit).
+- **`/query` (SIEM-validation command, added 2026-07-25)**: a sixth command,
+  deliberately breaking the `purple-` naming convention. Translates a
+  detection question into SIEM query syntax (Splunk/Elastic/Sentinel/generic,
+  asked per-invocation, never assumed or defaulted) for **manual execution
+  only** — no live SIEM connection exists or is ever claimed. Stops and waits
+  for human-provided results before analyzing anything; writes a
+  `detected/missed/partial` row to `detections.md` plus a fuller entry
+  (query used, SIEM product, data source/time scope, results summary, ATT&CK
+  mapping, investigation notes, follow-up actions) to the new
+  `detection-validations.md`. Tested in manual mode only, using
+  sanitized/synthetic data — not against a live SIEM (see Known
+  limitations).
 - **Redaction gate**: `.claude/hooks/redaction-check.sh`, a `PreToolUse`
   hook scoped to `git add`/`commit`/`push`, fails closed on any error.
   Two real bugs were found and fixed while testing it, before it went live:
@@ -47,11 +143,11 @@ future work (see Next steps).
 - **Hayabusa MCP**: wired via `.mcp.json` (gitignored, local-only — see
   External Dependencies), statically verified (interpreter resolves, `mcp`
   module imports, `server.py` parses, binary present). The underlying
-  Hayabusa binary was since confirmed executing against a sample EVTX and
-  producing a real detection (2026-07-25, see `TESTING.md`) — by invoking
-  the same command the MCP tool wraps directly, not through the MCP
-  protocol. **The MCP tool itself has still never been called live from
-  within this project.**
+  Hayabusa binary was confirmed executing against a sample EVTX and
+  producing a real detection (2026-07-25, see `TESTING.md`) by invoking the
+  same command directly, and separately, `mcp__hayabusa-mcp__scan_evtx`
+  was called live through the actual MCP protocol against the same sample
+  EVTX, returning the same finding (2026-07-25, see `TESTING.md`).
 - **Sample-data pipeline validation (2026-07-25)**: with
   `atomic_red_team_path`/`evidence_root` now configured, ran a read-only
   mapper lookup against the real Atomic Red Team clone and a full offline
@@ -65,26 +161,23 @@ future work (see Next steps).
   window, cleanup plan, evidence handling).
 - **Integration testing**: full command chain walked end-to-end with a
   synthetic exercise, then deleted (evidence consolidated into
-  `TESTING.md`). Re-verified as still accurate immediately before this
-  commit prep.
+  `TESTING.md`).
 - **Privacy/security review**: swept the whole repo for secrets, PII,
   private paths, hostnames. Fixed two real findings: `.mcp.json` and
   `.claude/settings.local.json` are now gitignored by the project itself
   (not just a machine-global config), with `.mcp.json.example` provided as
   the sanitized template; `config/data-sources.yaml`'s example comments
   were genericized (no username in tracked files).
-- **Pre-commit verification pass** (this session): command frontmatter,
-  symlink integrity, plugin manifest schema, JSON validity across every
-  JSON file in the repo, MCP config statically re-verified, full redaction
-  hook regression suite (8 cases: allow/block/fail-closed variants) — all
-  pass. No stray generated artifacts (`__pycache__`, `.venv`, etc.) found.
+- **Pre-commit verification pass**: command frontmatter, symlink integrity,
+  plugin manifest schema, JSON validity across every JSON file in the repo,
+  MCP config statically re-verified, full redaction hook regression suite
+  (8 cases: allow/block/fail-closed variants) — all pass. No stray generated
+  artifacts (`__pycache__`, `.venv`, etc.) found.
 
-## Cross-project validation: CTI correlation scenario shape (2026-07-25)
+## Cross-project validation: CTI correlation scenario shape
 
-Supplements the "Sample-data pipeline validation" entry above and its
-detail in `TESTING.md` — that entry already records the pipeline-level
-result; this adds the scenario shape and negative-control detail that
-weren't captured there.
+Scenario shape and negative-control detail from the sample-data validation
+above (full result in `TESTING.md`):
 
 - **Scenario shape**: the correlated finding traced a suspicious host-side
   call-out (a command-line tool spawned from a shell, connecting outbound)
@@ -97,10 +190,9 @@ weren't captured there.
   share an indicator with anything else. The pipeline correctly left them
   uncorrelated — confirms it isn't over-matching on unrelated activity,
   not just that it can find a planted match.
-- **Still applies**: all limitations already listed under the 2026-07-25
-  `TESTING.md` entry (heuristic/no behavioral correlation, deterministic-
-  matching only — no LLM reasoning exercised, single indicator/single hop,
-  one cloud-provider event shape, no live feed involved).
+- **Limitations**: heuristic/no behavioral correlation, deterministic-matching
+  only — no LLM reasoning exercised, single indicator/single hop, one
+  cloud-provider event shape, no live feed involved (see `TESTING.md`).
 
 ## Decisions
 
@@ -143,25 +235,18 @@ weren't captured there.
 |---|---|---|
 | Atomic Red Team clone (`redcanaryco/atomic-red-team`) | `atomic_red_team_path`, in gitignored `config/data-sources.local.yaml` (tracked `config/data-sources.yaml` stays `null`) | Configured (real local clone); mapper lookup confirmed read-only against it, 2026-07-25 |
 | Raw evidence root | `evidence_root`, in gitignored `config/data-sources.local.yaml` (tracked `config/data-sources.yaml` stays `null`) | Configured (external directory, empty — no exercise has written to it yet) |
-| Hayabusa MCP server | `.mcp.json` (gitignored; template at `.mcp.json.example`) | Configured and statically verified; underlying binary confirmed executing against a sample EVTX, 2026-07-25 — MCP protocol call itself still not exercised live |
+| `complex-analysis` sibling project (threat-intel/correlation CLI) | `complex_analysis_path`, in gitignored `config/data-sources.local.yaml` (tracked `config/data-sources.yaml` stays `null`) | Configured, path-only connection — no code shared or vendored. Not read by any purple-team command yet; its own `cti` CLI (`cti ingest-ti`/`cti analyze-endpoint`/`cti analyze-cloud`/`cti correlate`) is the documented launch interface for manual cross-tool workflows. Re-validated against its own sample fixtures, 2026-07-25 |
+| Hayabusa MCP server | `.mcp.json` (gitignored; template at `.mcp.json.example`) | Configured and verified end-to-end: underlying binary confirmed against a sample EVTX, and the MCP tool itself (`scan_evtx`) called live and returning the same result, 2026-07-25 |
 
 ## Known limitations (see `TESTING.md` for full detail)
 
-1. The `atomic-red-team-mapper` subagent has never been invoked as a real,
-   isolated process — this sandbox doesn't register project-local custom
-   agents as invokable subagent types. Its logic was verified by manually
-   following its written system prompt instead; its tool restriction
-   (`Read, Glob, Grep` only) is real in the file but has not been exercised
-   under actual harness enforcement.
-2. Prompt-injection resistance was a reasoning walkthrough against the
-   guardrail text, not an adversarial test against a live agent.
-3. As of 2026-07-25, tested against real external dependencies for the
-   first time: a real Atomic Red Team clone (mapper lookup, read-only) and
-   the real Hayabusa binary (direct invocation, sample EVTX only) — see
-   `TESTING.md`. The Hayabusa MCP server has still never been exercised
-   through the actual MCP protocol, and the mapper still has never run as
-   a live, isolated subagent process (see limitation 1).
-4. No concurrent/multi-operator testing of the append-only execution log.
+1. Prompt-injection resistance against the `atomic-red-team-mapper`
+   subagent has one live data point (a single live invocation that
+   correctly treated an embedded "this is validation only" framing as
+   context, not instruction), not a full adversarial test suite.
+2. No concurrent/multi-operator testing of the append-only execution log.
+3. `/query` was tested in manual mode with sanitized/synthetic data only —
+   not against a live SIEM.
 
 ## Key docs (don't duplicate them here — go read them)
 
@@ -200,6 +285,9 @@ weren't captured there.
    scoped, authorized exercise.
 2. If distribution scope changes later: revisit README's "local-only"
    framing, add a LICENSE, consider a marketplace listing.
-3. If this sandbox limitation is ever lifted (custom agents become
-   invokable), re-run the mapper as a real subagent and update `TESTING.md`
-   accordingly — limitation 1 above would no longer apply.
+3. Test `/query` against a real SIEM product once one is available and
+   authorized — current validation is manual-mode only, using sanitized
+   data.
+4. Run a dedicated adversarial prompt-injection test against the live
+   mapper subagent, if deeper assurance is wanted beyond the single data
+   point recorded in Known limitations.
