@@ -34,9 +34,12 @@ the plugin (see `assets/data-sources.yaml.example`):
    artifacts.
 
 Copy `assets/data-sources.yaml.example` to your project's
-`config/data-sources.yaml` and fill in both paths (or leave them `null`
-until ready — the commands and agent will tell you what's missing rather
-than guessing).
+`config/data-sources.yaml` and leave both paths `null` — the commands and
+agent will tell you what's missing rather than guessing. Put your real,
+per-installation paths in `config/data-sources.local.yaml` instead
+(gitignored, never committed); commands and the mapper agent check that
+file first and fall back to `config/data-sources.yaml` for anything it
+doesn't set. This keeps real local paths out of git history entirely.
 
 ## Assets
 

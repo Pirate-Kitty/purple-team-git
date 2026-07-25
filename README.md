@@ -37,15 +37,23 @@ or accounts you are not explicitly authorized to test.
 
 ## Setup (this installation)
 
-1. Configure `config/data-sources.yaml`:
-   - `atomic_red_team_path` — local clone of `redcanaryco/atomic-red-team`
-     (currently unset in this installation)
-   - `evidence_root` — external, non-repo path for raw exercise evidence
-2. Detection validation (optional): copy `.mcp.json.example` to `.mcp.json`
-   and fill in the absolute path to your local Hayabusa MCP server clone.
-   `.mcp.json` is gitignored — it's local, machine-specific config, never
-   committed.
-3. Run `/purple-scope` to start a new exercise.
+1. `config/data-sources.yaml` (tracked) ships with `null` placeholders, as
+   designed — real values for this installation (`atomic_red_team_path`,
+   a local `redcanaryco/atomic-red-team` clone, and `evidence_root`, an
+   external non-repo path for raw exercise evidence) live in
+   `config/data-sources.local.yaml` instead, gitignored and never
+   committed. Commands and the mapper agent check the local override file
+   first and fall back to the tracked one for anything it doesn't set.
+2. Detection validation (optional): `.mcp.json` is configured for this
+   installation, pointing at a local Hayabusa MCP server clone. `.mcp.json`
+   is gitignored — it's local, machine-specific config, never committed.
+3. Sample-data validation of this configuration is complete — see
+   `TESTING.md`'s 2026-07-25 entry for exactly what was and wasn't
+   exercised. **This is not a real exercise.**
+4. Run `/purple-scope` to start a real exercise. It requires its own
+   explicit scope, sign-off, approved targets/techniques, a time window,
+   and a cleanup plan before any mapping, runbook, or logging step
+   proceeds.
 
 ## Documentation
 
@@ -59,7 +67,8 @@ or accounts you are not explicitly authorized to test.
 - Real exercise data (`exercises/<id>/`) and generated reports
   (`reporting/<id>/`)
 - This installation's `.mcp.json` (machine-specific external server path)
-- This installation's `config/data-sources.yaml` (real or null paths for
-  this deployment)
+- This installation's `config/data-sources.local.yaml` (real paths for this
+  deployment; `config/data-sources.yaml` itself is bundled but always ships
+  with `null` placeholders)
 - The redaction hook and its `.claude/settings.json` registration
   (project-local security control, not a distributable feature)

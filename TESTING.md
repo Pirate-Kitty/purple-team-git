@@ -132,3 +132,72 @@ live detection-lookup call from `/purple-log`.
 **4. No concurrent/multi-operator testing.** Append-only was verified for
 two sequential writes by the same simulated operator; concurrent-write
 conflicts were not tested.
+
+## 2026-07-25 — Sample-data pipeline validation (config unblock + cross-repo walkthrough)
+
+**Not a real exercise.** No `exercises/<id>/` record was created; no scope, sign-off,
+or approved targets exist for this session. This entry records a technical validation
+of the `atomic_red_team_path`/`evidence_root` config unblock and the sample-data
+pipeline only.
+
+### Method
+
+Configured `config/data-sources.yaml` (`atomic_red_team_path`, `evidence_root`, both
+previously null) with confirmed real paths. Validated four things using only
+sample/synthetic data: the bundled sample EVTX, the newly-configured Atomic Red Team
+clone, and complex-analysis's documented offline-demo fixtures.
+
+### Results
+
+**1. Config guardrail cleared.** `atomic_red_team_path` now resolves to an existing
+directory; the "unset/missing, stop" condition in both `/purple-map-techniques`'s
+guardrail and the `atomic-red-team-mapper` agent's own step 1 no longer triggers.
+
+**2. Hayabusa detection capability confirmed against sample EVTX.** Ran the same scan
+invocation the `hayabusa-mcp` server's `run_scan` wraps, directly (see Limitations —
+the MCP tool itself was not called in this session), against the bundled sample EVTX.
+Exit 0; one low-severity logon-failure rule match returned. Confirms the Hayabusa
+binary the MCP server depends on executes against real EVTX content and produces a
+real detection — this exercised one rule match out of the full loaded rule set, not
+a validation of rule-set coverage or accuracy as a whole.
+
+**3. complex-analysis offline pipeline confirmed against sample fixtures.** Ran the
+documented offline demo (ingest → endpoint analysis → cloud analysis → correlate)
+against sample fixtures into a fresh scratch database — fully offline,
+deterministic-only, no credentials/LLM/network involved. Produced one correlated
+finding (high severity) linking a shared synthetic indicator across an endpoint event
+and a cloud event.
+
+**4. Mapper lookup against the real clone, for technique IDs derived analyst-style
+from the correlated finding.** Derived two candidate ATT&CK technique IDs from the
+correlated finding's shape (an outbound web-protocol connection correlated with a
+cloud API call tied to the same indicator), stated explicitly as analyst judgment, not
+asserted ground truth. Looked both up read-only against the configured clone:
+- One technique: candidate tests found, including one directly relevant to the
+  observed behavior.
+- The other technique: candidate tests found, but **none specific to the cloud
+  provider involved in the correlated finding** — only tests for other cloud
+  providers exist in the local data for this technique. Reported as a real coverage
+  gap, per the mapper's own "say so plainly, don't fabricate a match" rule.
+
+### Limitations — carried forward and new
+
+- **Mapper subagent still not invoked as a live, isolated process** (same sandbox
+  limitation as the 2026-07-24 entry above) — Result 4's lookups were produced by
+  manually following the agent's written procedure and self-restricting to read-only
+  lookups, not by the harness enforcing its `Read/Glob/Grep`-only tool restriction.
+- **Hayabusa MCP tool still not called through the actual MCP protocol from within
+  purple-team.** This session's MCP connections were scoped to a different project;
+  Result 2 was produced by invoking the same underlying binary command the tool
+  wraps directly, not via a live `scan_evtx` tool call. The end-to-end MCP call from
+  `/purple-log` remains unexercised.
+- **The second technique's coverage gap is real**, not an artifact of this
+  validation — the local Atomic Red Team data simply has no test for the cloud
+  provider in question.
+- **Technique-ID derivation was analyst judgment from correlated IOC data, not a
+  modeled or automated mapping** — complex-analysis has no built-in ATT&CK-technique
+  output in its offline/deterministic pipeline; that mapping only exists in a
+  separate, network-dependent command not used here.
+- **No real exercise was scoped, authorized, or run.** Live execution still requires,
+  and does not yet have: an approved scope, approved hosts, approved techniques, a
+  defined time window, a cleanup plan, and evidence-handling terms.

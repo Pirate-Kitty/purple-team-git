@@ -4,6 +4,11 @@ Exercise and reporting files are meant to be tracked in git. Real evidence
 (raw logs, screenshots, pcaps) is never stored in this repo — it lives on an
 external path (see `config/data-sources.yaml`) and is referenced by path only.
 
+Real, per-installation absolute paths (the `atomic_red_team_path` and
+`evidence_root` values themselves) never belong in the tracked
+`config/data-sources.yaml` either — put them in `config/data-sources.local.yaml`
+instead (gitignored). The tracked file stays `null`/example values only.
+
 Even so, curated notes (`scope.md`, `execution-log.md`, reports) can
 accidentally pick up real values by hand. Use placeholder tokens from the
 start instead of relying on catching them later:

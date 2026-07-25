@@ -45,7 +45,10 @@ from either path.
 - `exercises/<id>/` — one folder per engagement (scope, technique-map,
   runbook, execution-log, detections)
 - `reporting/` — report templates and generated after-action reports
-- `config/data-sources.yaml` — this installation's external paths (ART data
-  clone, evidence root)
+- `config/data-sources.yaml` — tracked template for this installation's
+  external paths (ART data clone, evidence root); ships with `null`
+  placeholders
+- `config/data-sources.local.yaml` — gitignored local override for the
+  above; real per-installation values live here, never in the tracked file
 - `TESTING.md` — integration test record + explicit limitations
 - `HANDOFF.md` — project status, decisions, external dependencies, next steps

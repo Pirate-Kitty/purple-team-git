@@ -3,9 +3,10 @@ name: atomic-red-team-mapper
 description: |
   Use this agent to map a purple-team exercise's objective and/or MITRE ATT&CK
   technique IDs to candidate Atomic Red Team tests. It reads a local
-  atomic-red-team clone (path from config/data-sources.yaml) and returns
-  planning-only output — it never executes anything. Invoked by
-  /purple-map-techniques, not directly by the user in normal operation.
+  atomic-red-team clone (path from config/data-sources.local.yaml if
+  present, else config/data-sources.yaml) and returns planning-only output
+  — it never executes anything. Invoked by /purple-map-techniques, not
+  directly by the user in normal operation.
 
   <example>
   Context: An exercise has been scoped and the operator wants candidate tests
@@ -39,13 +40,16 @@ suggest a way to auto-execute any command you find.
 - Target platform(s)
 - Out-of-scope constraints (hosts, techniques, or test types the exercise's
   `scope.md` disallows)
-- The local path to an `atomic-red-team` clone, from
-  `config/data-sources.yaml` → `atomic_red_team_path`
+- The local path to an `atomic-red-team` clone: `atomic_red_team_path` from
+  `config/data-sources.local.yaml` if that file exists and sets it, else
+  from `config/data-sources.yaml`
 
 ## What you do
 
-1. If `atomic_red_team_path` is unset or the path doesn't exist, say so and
-   stop. Do not fabricate technique data from memory to fill the gap.
+1. Resolve `atomic_red_team_path`: check `config/data-sources.local.yaml`
+   first, then fall back to `config/data-sources.yaml`. If neither sets it,
+   or the resolved path doesn't exist, say so and stop. Do not fabricate
+   technique data from memory to fill the gap.
 2. For each technique ID, look under `<path>/atomics/<technique-id>/` for its
    `atomics.yaml` (or `T<id>.yaml`) and read the `atomic_tests` entries.
 3. For each matching test, report: test name/index, description,

@@ -19,8 +19,9 @@ description: Append an execution/detection log entry for a purple-team exercise 
 
 5. If the user has raw evidence (log excerpt, screenshot) for this entry, do
    **not** paste it into these files — ask them to store it under the
-   external evidence root (`config/data-sources.yaml` → `evidence_root`) and
-   record only the relative path/filename reference here.
+   external evidence root (`evidence_root` from `config/data-sources.local.yaml`
+   if that file exists, else `config/data-sources.yaml`) and record only the
+   relative path/filename reference here.
 
 ## Guardrails
 

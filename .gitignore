@@ -16,3 +16,4 @@ credentials*
 # creates its own; see .mcp.json.example and README.md.
 .mcp.json
 .claude/settings.local.json
+config/data-sources.local.yaml

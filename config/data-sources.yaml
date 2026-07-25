@@ -2,6 +2,11 @@
 # Neither path below is stored inside this repo's git history — both point
 # outside it. Fill these in once confirmed; do not commit real internal
 # hostnames here if this repo is ever shared beyond its intended audience.
+#
+# To keep real values out of git entirely, put them in
+# config/data-sources.local.yaml instead (gitignored, never committed).
+# Commands and the atomic-red-team-mapper agent check that file first, per
+# key, and fall back to the values below for any key it doesn't set.
 
 # Local clone of https://github.com/redcanaryco/atomic-red-team
 # Read-only source for the atomic-red-team-mapper agent.

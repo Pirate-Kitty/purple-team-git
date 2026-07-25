@@ -33,8 +33,10 @@ description: Map an exercise's objective/ATT&CK technique IDs to candidate Atomi
 
 ## Guardrails
 
-- If `config/data-sources.yaml` has no `atomic_red_team_path` set, tell the
-  user the mapper has no data source configured yet and stop — do not let the
-  subagent guess at or fabricate atomic test content.
+- Resolve `atomic_red_team_path` from `config/data-sources.local.yaml` if
+  that file exists and sets it, else from `config/data-sources.yaml`. If
+  neither has it set, tell the user the mapper has no data source
+  configured yet and stop — do not let the subagent guess at or fabricate
+  atomic test content.
 - Never execute, stage, or offer to run any command the mapper returns —
   this command's job ends at writing the candidate list to a file.
