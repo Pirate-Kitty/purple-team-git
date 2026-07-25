@@ -79,6 +79,29 @@ future work (see Next steps).
   hook regression suite (8 cases: allow/block/fail-closed variants) — all
   pass. No stray generated artifacts (`__pycache__`, `.venv`, etc.) found.
 
+## Cross-project validation: CTI correlation scenario shape (2026-07-25)
+
+Supplements the "Sample-data pipeline validation" entry above and its
+detail in `TESTING.md` — that entry already records the pipeline-level
+result; this adds the scenario shape and negative-control detail that
+weren't captured there.
+
+- **Scenario shape**: the correlated finding traced a suspicious host-side
+  call-out (a command-line tool spawned from a shell, connecting outbound)
+  to a cloud storage read from the same source IP shortly after — i.e. a
+  minimal call-out-then-cloud-data-access pattern tied together by one
+  shared indicator. Candidate reference shape if a future exercise wants
+  something a host+cloud correlation pipeline should be able to catch.
+- **Negative control confirmed**: the sample data included two additional
+  host events and two additional cloud events that deliberately do *not*
+  share an indicator with anything else. The pipeline correctly left them
+  uncorrelated — confirms it isn't over-matching on unrelated activity,
+  not just that it can find a planted match.
+- **Still applies**: all limitations already listed under the 2026-07-25
+  `TESTING.md` entry (heuristic/no behavioral correlation, deterministic-
+  matching only — no LLM reasoning exercised, single indicator/single hop,
+  one cloud-provider event shape, no live feed involved).
+
 ## Decisions
 
 - **Distribution scope**: local-only for now, not published, no LICENSE.
