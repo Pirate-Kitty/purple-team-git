@@ -86,8 +86,12 @@ Full method/results/limitations live in `TESTING.md`; this is an index:
 
 ## Current status
 
-Local-only Claude Code plugin, tracked in git with a real GitHub remote
-(`origin/main`). This installation's config for external data sources
+Tracked in git and pushed to a public GitHub remote
+(`origin/main`, `github.com/Pirate-Kitty/purple-team-git`). "Local-only"
+below describes the plugin's installation model (no marketplace listing,
+no LICENSE, not intended for others to install yet) — it does not mean
+the repository is unpushed or private; it is neither. This installation's
+config for external data sources
 (`atomic_red_team_path`, `evidence_root`) lives in a gitignored
 `config/data-sources.local.yaml`; the tracked `config/data-sources.yaml`
 stays `null`-only, so per-installation paths never enter git history — see
@@ -196,8 +200,10 @@ above (full result in `TESTING.md`):
 
 ## Decisions
 
-- **Distribution scope**: local-only for now, not published, no LICENSE.
-  Revisit if that changes.
+- **Distribution scope**: the repository is public and pushed (`origin/main`
+  on GitHub), but the *plugin* is not distribution-ready — no LICENSE, no
+  marketplace listing, not intended for anyone else to install yet. Revisit
+  if that changes.
 - **Atomic Red Team data**: not vendored into this repo. Mapper reads from
   an external, user-supplied clone path (`atomic_red_team_path`). As of
   2026-07-25, this installation has a real clone configured — via

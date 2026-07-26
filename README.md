@@ -6,10 +6,16 @@ generation, execution logging, and after-action reporting.
 
 ## Status
 
-**Local-only. Not distribution-ready.** This has not been published to any
-marketplace, is not installed from a Git remote, and is not intended to be
-installed by anyone outside this local checkout yet. Treat everything here
-as a working project, not a released package.
+The repository is tracked in git and pushed to a public GitHub remote
+(`origin/main`, `github.com/Pirate-Kitty/purple-team-git`) — see
+`HANDOFF.md`'s Current status for the full checkpoint.
+
+**The plugin itself is local-only and not distribution-ready.** That's
+about the installation model, not whether the code is public: it has no
+LICENSE, is not listed in any Claude Code plugin marketplace, and isn't
+intended for anyone else to install as a plugin dependency yet. Treat it
+as a working project whose source happens to be public, not a released,
+supported package.
 
 **No live Atomic Red Team technique execution or real-target exercise has
 been performed using this project.** Everything validated so far — the
