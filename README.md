@@ -40,7 +40,9 @@ or accounts you are not explicitly authorized to test.
 - `commands/` — `/purple-scope`, `/purple-map-techniques`, `/purple-runbook`,
   `/purple-log`, `/purple-report`, `/query` (symlinked to `.claude/commands/`,
   the tested source of truth; `/query` intentionally breaks the `purple-`
-  naming convention)
+  naming convention). `/query` generates manual SIEM query syntax from a
+  detection question and validates human-provided results — no live SIEM
+  connection.
 - `agents/atomic-red-team-mapper.md` — planning-only technique-to-test
   mapping subagent, no execution capability (symlinked to `.claude/agents/`)
 - `skills/purple-team-workflow/` — workflow overview and generic starter
